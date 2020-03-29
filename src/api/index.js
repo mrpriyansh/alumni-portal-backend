@@ -10,7 +10,9 @@ const indiUser = require('./controllers/user');
 const userAuth = require('./middlewares/user-auth');
 const verifyAdmin = require('./middlewares/verifyAdmin');
 const posts = require('./controllers/posts');
-
+const comments = require('./controllers/comments');
+const replies = require('./controllers/replies');
+const fetchcomment = require('./controllers/fetchcomment');
 const url = config.host;
 
 MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
@@ -78,6 +80,22 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
       .toArray();
     res.send(user);
   });
+  //implementing comments
+router.post('/posts/:postID/comments',userAuth, (req,res) =>{
+   comments(req,res,db);
 });
+
+router.post('/posts/:postID/:commentID/replies',userAuth, (req,res,next) =>{
+  comments(req,res,db);
+  next();
+},(req,res) =>{replies(req,res,db);});
+
+ //fetching comments of a post
+ router.get('/posts/:postID/comment',userAuth, (req,res) => {
+  fetchcomment(req,res,db);
+});
+});
+
+
 
 module.exports = router;

@@ -13,11 +13,11 @@ const handleSignup = async (req, res, db) => {
     const hash = await bcrypt.hash(password, 10);
     await db
       .collection('users')
-      .insertOne({ name, email, phone, hash, isAdmin: false, isVerified: false });
-    const { isVerified } = await db.collection('users').findOne({ email });
+      .insertOne({ name, email, phone, hash, isAdmin: false, isAdminVerified: false });
+    const { isAdminVerified } = await db.collection('users').findOne({ email });
     const user = await db.collection('users').findOne({ email });
     const userID = user._id;
-    if (!isVerified) {
+    if (!isAdminVerified) {
       // if it is not a admin then verify a user by admin
       await db.collection('admins').updateOne({}, { $push: { usersToVerify: userID } });
     }
