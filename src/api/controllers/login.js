@@ -5,11 +5,11 @@ const { jwtSecret } = require('../../utils/config');
 const handleLogin = async (req, res, db) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    res.status(400).send('Fields cannot be empty');
+    res.status(400).json({ response: 'Fields cannot be empty' });
   } else {
     const exists = await db.collection('users').findOne({ email });
 
-    if (!exists) res.status(401).send('Email does not exist');
+    if (!exists) res.status(401).json({ response: 'Email does not exist' });
     else {
       const match = await bcrypt.compare(password, exists.hash);
 
@@ -19,9 +19,9 @@ const handleLogin = async (req, res, db) => {
           algorithm: 'ES512',
           expiresIn: '30d',
         });
-        res.status(200).send(token);
+        res.status(200).json({ response: 'success', data: token });
       } else {
-        res.status(400).send('Incorrect password');
+        res.status(400).json({ response: 'Incorrect password' });
       }
     }
   }

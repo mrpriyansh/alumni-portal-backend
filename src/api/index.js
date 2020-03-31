@@ -13,6 +13,8 @@ const posts = require('./controllers/posts');
 const comments = require('./controllers/comments');
 const replies = require('./controllers/replies');
 const fetchcomment = require('./controllers/fetchcomment');
+const userDetails = require('./controllers/userDetails');
+
 const url = config.host;
 
 MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
@@ -66,6 +68,10 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.get('/user', userAuth, (req, res) => {
     indiUser(req, res, db);
   });
+
+  router.get('/userdetails', userAuth, (req, res) => {
+    userDetails(req, res, db);
+  });
   router.post('/posts', userAuth, (req, res) => {
     posts(req, res, db);
   });
@@ -80,22 +86,22 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
       .toArray();
     res.send(user);
   });
-  //implementing comments
-router.post('/posts/:postID/comments',userAuth, (req,res) =>{
-   comments(req,res,db);
+  // implementing comments
+  router.post('/posts/:postID/comments', userAuth, (req, res) => {
+    comments(req, res, db);
+  });
+
+  // eslint-disable-next-line prettier/prettier
+  router.post('/posts/:postID/:commentID/replies', userAuth, (req,res,next) =>{
+      comments(req, res, db);
+      next();
+      // eslint-disable-next-line prettier/prettier
+  }, (req,res) => {replies(req,res,db);});
+
+  // fetching comments of a post
+  router.get('/posts/:postID/comment', userAuth, (req, res) => {
+    fetchcomment(req, res, db);
+  });
 });
-
-router.post('/posts/:postID/:commentID/replies',userAuth, (req,res,next) =>{
-  comments(req,res,db);
-  next();
-},(req,res) =>{replies(req,res,db);});
-
- //fetching comments of a post
- router.get('/posts/:postID/comment',userAuth, (req,res) => {
-  fetchcomment(req,res,db);
-});
-});
-
-
 
 module.exports = router;
