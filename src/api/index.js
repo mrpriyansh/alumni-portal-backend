@@ -9,7 +9,7 @@ const login = require('./controllers/login');
 const indiUser = require('./controllers/user');
 const userAuth = require('./middlewares/user-auth');
 const verifyAdmin = require('./middlewares/verifyAdmin');
-const posts = require('./controllers/posts');
+const uploadPost = require('./controllers/uploadPost');
 const comments = require('./controllers/comments');
 const replies = require('./controllers/replies');
 const fetchcomment = require('./controllers/fetchcomment');
@@ -72,8 +72,8 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.get('/userdetails', userAuth, (req, res) => {
     userDetails(req, res, db);
   });
-  router.post('/posts', userAuth, (req, res) => {
-    posts(req, res, db);
+  router.post('/uploadPost', userAuth, (req, res) => {
+    uploadPost(req, res, db);
   });
   router.get('/posts/:postID', userAuth, async (req, res) => {
     const post = await db.collection('posts').findOne({ _id: req.params.postID });
