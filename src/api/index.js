@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 const express = require('express');
 const { MongoClient } = require('mongodb');
 const { ObjectID } = require('mongodb');
@@ -14,6 +15,7 @@ const comments = require('./controllers/comments');
 const replies = require('./controllers/replies');
 const fetchcomment = require('./controllers/fetchcomment');
 const userDetails = require('./controllers/userDetails');
+const uploadImage = require('./controllers/uploadImage');
 
 const url = config.host;
 
@@ -30,6 +32,9 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.post('/signup', (req, res) => {
     signup.handleSignup(req, res, db);
   });
+  router.post('/uploadimage', userAuth, (req,res)=>{
+    uploadImage(req, res, db);
+  })
   router.post('/login', (req, res) => {
     login(req, res, db);
   });
