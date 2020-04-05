@@ -16,6 +16,8 @@ const replies = require('./controllers/replies');
 const fetchcomment = require('./controllers/fetchcomment');
 const userDetails = require('./controllers/userDetails');
 const uploadImage = require('./controllers/uploadImage');
+const fetchPosts = require('./controllers/fetchPosts');
+const profile = require('./controllers/profile');
 
 const url = config.host;
 
@@ -35,8 +37,21 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.post('/uploadimage', userAuth, (req,res)=>{
     uploadImage(req, res, db);
   })
+  router.post('/fetchposts', userAuth, (req,res)=>{
+    fetchPosts(req,res,db);
+  })
   router.post('/login', (req, res) => {
     login(req, res, db);
+  });
+  router.get('/profile/:profileId', (req,res)=>{
+    console.log('sa');
+    profile(req, res, db);
+  })
+  router.get('/userdetails', userAuth, (req, res) => {
+    userDetails(req, res, db);
+  });
+  router.post('/uploadPost', userAuth, (req, res) => {
+    uploadPost(req, res, db);
   });
   router.get('/admin', userAuth, verifyAdmin(db), async (req, res) => {
     const userToBeVerifiedID = await db
@@ -74,12 +89,6 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     indiUser(req, res, db);
   });
 
-  router.get('/userdetails', userAuth, (req, res) => {
-    userDetails(req, res, db);
-  });
-  router.post('/uploadPost', userAuth, (req, res) => {
-    uploadPost(req, res, db);
-  });
   router.get('/posts/:postID', userAuth, async (req, res) => {
     const post = await db.collection('posts').findOne({ _id: req.params.postID });
     res.status(200).send(post);

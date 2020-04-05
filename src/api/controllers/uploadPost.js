@@ -3,7 +3,8 @@ module.exports = async (req, res, db) => {
   if (text.length === 0) res.status(400).json({ icon: 'error', title: `Post can't be empty!` });
   const user = await db.collection('users').findOne({ email: req.user.email });
   const ID = user._id;
-  await db.collection('posts').insertOne({ ID, text, type, imageUrl });
+  const userName = user.name;
+  await db.collection('posts').insertOne({ ID, userName, text, type, imageUrl });
 
   db.collection('posts')
     .find()

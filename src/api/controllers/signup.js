@@ -2,10 +2,10 @@ const bcrypt = require('bcrypt');
 
 const handleSignup = async (req, res, db) => {
   // eslint-disable-next-line prettier/prettier
-  const { name, email, phoneno, password, batchName, subBatch, graduationYear, dob, userType} = req.body;
+  const { name, email, phoneno, password, batchName, subBatch, admissionYear, graduationYear, dob, userType} = req.body;
   const errors = [];
   // eslint-disable-next-line prettier/prettier
-  if (!name || !email || !password || !phoneno || !batchName || !subBatch || !graduationYear || !dob || !userType)
+  if (!name || !email || !password || !phoneno || !batchName || !subBatch || !admissionYear || !graduationYear || !dob || !userType)
     errors.push('Fields can not be empty');
   const exists = await db.collection('users').findOne({ email });
   if (exists) errors.push('Email already exists');
@@ -16,7 +16,7 @@ const handleSignup = async (req, res, db) => {
     await db
       .collection('users')
       // eslint-disable-next-line prettier/prettier
-      .insertOne({ name, email, phoneno, hash, batchName, subBatch, graduationYear, dob, userType, isAdmin:'false',  isAdminVerified: false, isEmailVerified: false });
+      .insertOne({ name, email, phoneno, hash, batchName, subBatch, admissionYear, graduationYear, dob, userType, isAdmin:false,  isAdminVerified: false, isEmailVerified: false });
     const { isAdminVerified } = await db.collection('users').findOne({ email });
     const user = await db.collection('users').findOne({ email });
     const userID = user._id;
