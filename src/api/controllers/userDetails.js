@@ -1,15 +1,6 @@
 module.exports = async (req, res, db) => {
-  const data = {
-    name: 1,
-    email: 1,
-    phoneno: 1,
-    hash: 0,
-    batchName: 1,
-    subBatch: 1,
-    graduationYear: 1,
-    dob: 1,
-    userType: 1,
-  };
-  const user = await db.collection('users').findOne({ email: req.user.email }, data);
+  const data = { hash: 0, isAdminVerified: 0, isEmailVerified: 0, isAdmin: 0, dob: 0, userType: 0 };
+  // eslint-disable-next-line prettier/prettier
+  const user = await db.collection('users').findOne( {email: req.user.email }, {projection: data} );
   res.status(200).json(user);
 };
