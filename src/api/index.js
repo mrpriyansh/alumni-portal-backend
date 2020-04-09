@@ -2,6 +2,7 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
 const { ObjectID } = require('mongodb');
+const jwt=require('jsonwebtoken');
 const config = require('../utils/config');
 
 const router = express.Router();
@@ -34,6 +35,34 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.post('/signup', (req, res) => {
     signup.handleSignup(req, res, db);
   });
+
+  
+  // verifying email route
+
+  router.get('/verifyEmail/:token',async(req,res)=>{
+    const {token} = req.params;
+    jwt.verify(token,process.env.TOKEN_ACCESS_SECRET,async(er,decoded)=>{
+        if(er){
+            res.status(401).send({message: er.message})
+        }
+        else{
+            const userid=decoded.id;
+           // console.log(userid);
+            await db
+               .collection('users')
+               .findOneAndUpdate({ _id: ObjectID(userid) }, { $set: { isEmailVerified: true } });
+            // console.log(users);
+            try {
+              res.redirect('/api/login')
+          } catch (error) {
+              res.status(400).send(error)
+          } 
+        }     
+    })
+  })
+
+
+  
   router.post('/uploadimage', userAuth, (req,res)=>{
     uploadImage(req, res, db);
   })

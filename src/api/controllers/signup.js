@@ -1,4 +1,6 @@
 const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
+const jwt = require('jsonwebtoken');
 
 const handleSignup = async (req, res, db) => {
   // eslint-disable-next-line prettier/prettier
@@ -26,6 +28,28 @@ const handleSignup = async (req, res, db) => {
     }
     // eslint-disable-next-line prettier/prettier
     res.status(200).json({ icon: 'success', title: 'Registered Successfully', text: 'Verify your email!' });
+    const transport = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: process.env.SERVER_MAIL_ADDRESS,
+        pass: process.env.SERVER_PASSWORD,
+      },
+    });
+    const info = {
+      username: user.name,
+      id: user._id,
+      expiry: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
+    };
+    const token = jwt.sign(info, process.env.TOKEN_ACCESS_SECRET, { expiresIn: '1h' });
+    // console.log(token);
+    // console.log(mailOptions);
+    await transport.sendMail({
+      from: 'noreply <process.env.SERVER_MAIL_ADDRESS>',
+      to: user.email,
+      subject: 'Email verification',
+      text: `Visit this http://localhost:4000/verifyEmail/${token}`,
+      html: `<a href="http://localhost:4000/api/verifyEmail/${token}"><H2>Click on this link to verify your email!!</H2></a>`,
+    });
   }
 };
 
