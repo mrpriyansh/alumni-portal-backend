@@ -28,6 +28,7 @@ const handleSignup = async (req, res, db) => {
     }
     // eslint-disable-next-line prettier/prettier
     res.status(200).json({ icon: 'success', title: 'Registered Successfully', text: 'Verify your email!' });
+
     const transport = nodemailer.createTransport({
       service: 'Gmail',
       auth: {

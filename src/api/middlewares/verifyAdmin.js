@@ -2,7 +2,7 @@ function needsDbParam(db) {
   return async function(req, res, next) {
     const { email } = req.body;
     const authCheck = await db.collection('users').findOne({ email });
-    const { isAdmin } = authCheck;
+    const { isAdmin } = authCheck || {};
     if (isAdmin) {
       next();
     } else {
