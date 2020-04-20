@@ -62,12 +62,12 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   })
 
 
-  
   router.post('/uploadimage', userAuth, (req,res)=>{
     uploadImage(req, res, db);
   })
   router.post('/fetchposts', userAuth, (req,res)=>{
-    fetchPosts(req,res,db);
+
+    fetchPosts(req,res,db,client);
   })
   router.post('/login', (req, res) => {
     login(req, res, db);
@@ -98,6 +98,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   });
   // verifying user by deleting userID from admins->userToVerify array and setting isVerified Field true
   router.get('/admin/confirm/:userID', userAuth, verifyAdmin(db), async (req, res) => {
+
     const session = client.startSession();
     
     const transactionOptions = {
@@ -107,13 +108,11 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   };
 
   try {
+    const adminsCollection=await  db.collection('admins');
+    const usersCollection=await db.collection('users');
     const transactionResults = await session.withTransaction(async () => {
-      await db
-      .collection('admins')
-      .updateOne({}, { $pull: { usersToVerify: ObjectID(req.params.userID) } }, { session });
-    await db
-      .collection('users')
-      .findOneAndUpdate({ _id: ObjectID(req.params.userID) }, { $set: { isAdminVerified: true } },{ session });
+      adminsCollection.updateOne({}, { $pull: { usersToVerify: ObjectID(req.params.userID) } }, { session });
+      usersCollection.findOneAndUpdate({ _id: ObjectID(req.params.userID) }, { $set: { isAdminVerified: true } },{ session });
 
     }, transactionOptions);
    
@@ -155,7 +154,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   });
   // implementing comments
   router.post('/posts/:postID/comments', userAuth, (req, res) => {
-    comments(req, res, db);
+    comments(req, res, db, client);
   });
 
   // eslint-disable-next-line prettier/prettier
