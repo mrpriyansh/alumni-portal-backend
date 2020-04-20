@@ -18,24 +18,19 @@ module.exports = async (req, res, db, client) => {
   try {
     const transactionResults = await session.withTransaction(async () => {
       // inserting comment in comment collection
-      await db
+    let cmntID=  await db
         .collection('comments')
         .insertOne({ comment, userID, PostID: req.params.postID, timestamp: Date() }, { session });
-      // updating users collection with commentID and postID in a comment array.
-      await db
-        .collection('comments')
-        .find()
-        .sort({ _id: -1 })
-        .toArray(async (err, collection) => {
-          if (err) throw err;
-          cmntID = collection[0]._id;
+     // updating users collection with commentID and postID in a comment array.
+
+          cmntID = cmntID.insertedId;
 
           await db.collection('users').updateOne(
             { _id: userID },
             {
-              $push: { comments: { commentID: collection[0]._id, postID: req.params.postID } },
+              $push: { comments: { commentID: cmntID, postID: req.params.postID } },
             },
-            { session }
+            {session}
           );
 
           // updating posts collection with inserting an array postComments which contain all the posts commentID's .
@@ -44,13 +39,14 @@ module.exports = async (req, res, db, client) => {
             .updateOne(
               { _id: ObjectID(req.params.postID) },
               { $push: { postCommentsIDs: cmntID } },
-              { session }
+              {session}
             );
-        });
+        
     }, transactionOptions);
 
+    
     if (transactionResults) {
-      console.log('The transaction was successfull');
+      res.send('transaction was successful');
     } else {
       console.log('The transaction was intentionally aborted.');
     }
