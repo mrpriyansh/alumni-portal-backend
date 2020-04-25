@@ -11,6 +11,11 @@ const login = require('./controllers/login');
 const indiUser = require('./controllers/user');
 const userAuth = require('./middlewares/user-auth');
 const verifyAdmin = require('./middlewares/verifyAdmin');
+const isAdminVerified=require('./middlewares/isAdminVerified.js');
+const isEmailVerified=require('./middlewares/isEmailVerified');
+const emailVerification=require('./controllers/emailVerification');
+const adminVerification=require('./controllers/adminVerification');
+const showAdmin=require('./controllers/showAdmin');
 const uploadPost = require('./controllers/uploadPost');
 const comments = require('./controllers/comments');
 const replies = require('./controllers/replies');
@@ -21,6 +26,7 @@ const fetchPosts = require('./controllers/fetchPosts');
 const profile = require('./controllers/profile');
 
 const url = config.host;
+
 
 MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   if (err) {
@@ -35,45 +41,21 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.post('/signup', (req, res) => {
     signup.handleSignup(req, res, db);
   });
-
-  
   // verifying email route
-
   router.get('/verifyEmail/:token',async(req,res)=>{
-    const {token} = req.params;
-    jwt.verify(token,process.env.TOKEN_ACCESS_SECRET,async(er,decoded)=>{
-        if(er){
-            res.status(401).send({message: er.message})
-        }
-        else{
-            const userid=decoded.id;
-           // console.log(userid);
-            await db
-               .collection('users')
-               .findOneAndUpdate({ _id: ObjectID(userid) }, { $set: { isEmailVerified: true } });
-            // console.log(users);
-            try {
-              res.redirect('/api/login')
-          } catch (error) {
-              res.status(400).send(error)
-          } 
-        }     
-    })
-  })
+   emailVerification(req,res,db);
+  });
 
-
-  
   router.post('/uploadimage', userAuth, (req,res)=>{
     uploadImage(req, res, db);
   })
-  router.post('/fetchposts', userAuth, (req,res)=>{
+  router.get('/fetchposts', userAuth, (req,res)=>{
     fetchPosts(req,res,db);
   })
-  router.post('/login', (req, res) => {
+  router.post('/login', isEmailVerified(db) ,isAdminVerified(db),(req, res) => {
     login(req, res, db);
   });
   router.get('/profile/:profileId', (req,res)=>{
-    console.log('sa');
     profile(req, res, db);
   })
   router.get('/userdetails', userAuth, (req, res) => {
@@ -83,28 +65,11 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     uploadPost(req, res, db);
   });
   router.get('/admin', userAuth, verifyAdmin(db), async (req, res) => {
-    const userToBeVerifiedID = await db
-      .collection('admins')
-      .find({})
-      .toArray();
-    const users = await db
-      .collection('users')
-      .find({})
-      .toArray();
-    const userToBeVerified = users.filter(user =>
-      userToBeVerifiedID[0].usersToVerify.toString().includes(user._id)
-    );
-    res.status(200).send(userToBeVerified);
+    showAdmin(req,res,db);
   });
-  // verifying user by deleting userID from admins->userToVerify array and setting isVerified Field true
+  // verifying user by deleting userID from admins->userToVerify array and setting isAdminVerified Field true
   router.get('/admin/confirm/:userID', userAuth, verifyAdmin(db), async (req, res) => {
-    await db
-      .collection('admins')
-      .updateOne({}, { $pull: { usersToVerify: ObjectID(req.params.userID) } });
-    await db
-      .collection('users')
-      .findOneAndUpdate({ _id: ObjectID(req.params.userID) }, { $set: { isVerified: true } });
-    res.send('user succesfully verified by admin');
+    adminVerification(req,res,db,client);
   });
   // deleting user by deleting userID from admins-> userToVerify array
   router.get('/admin/delete/:userID', userAuth, verifyAdmin(db), async (req, res) => {
@@ -131,7 +96,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   });
   // implementing comments
   router.post('/posts/:postID/comments', userAuth, (req, res) => {
-    comments(req, res, db);
+    comments(req, res, db, client);
   });
 
   // eslint-disable-next-line prettier/prettier
