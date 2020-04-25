@@ -1,6 +1,7 @@
 const { ObjectId } = require('mongodb');
 
 module.exports = async (req, res, db) => {
+
   if (req.body.findAll === true) {
     // eslint-disable-next-line prettier/prettier
     const posts = await db.collection('posts').find( {type:req.body.type} ).sort([['_id',-1]]).toArray();

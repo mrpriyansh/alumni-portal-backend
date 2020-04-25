@@ -4,16 +4,13 @@ module.exports = async (req, res, db) => {
   const user = await db.collection('users').findOne({ email: req.user.email });
   const ID = user._id;
   const userName = user.name;
-  await db.collection('posts').insertOne({ ID, userName, text, type, imageUrl });
+  let POST= await db.collection('posts').insertOne({ ID, userName, text, type, imageUrl });
+  
+  let postID=POST.insertedId;
 
-  db.collection('posts')
-    .find()
-    .sort({ _id: -1 })
-    .toArray(async (err, collection) => {
-      if (err) throw err;
-      await db
+  await db
         .collection('users')
-        .updateOne({ email: req.user.email }, { $push: { Posts: collection[0]._id } });
-    });
+        .updateOne({ email: req.user.email }, { $push: { Posts: postID } });
+        
   res.status(200).json({ icon: 'success', title: 'Your Post is Uploaded!' });
 };
