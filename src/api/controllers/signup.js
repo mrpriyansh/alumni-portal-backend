@@ -4,21 +4,23 @@ const jwt = require('jsonwebtoken');
 
 const handleSignup = async (req, res, db) => {
   // eslint-disable-next-line prettier/prettier
-  const { name, email, phoneno, password, batchName, subBatch, admissionYear, graduationYear, dob, userType} = req.body;
+  const { name, email, phoneno, password, confirmPassword, batchName, subBatch, admissionYear, graduationYear, dob, userType, designation, company, instituteEmail, gender } = req.body;
   const errors = [];
+  console.log(designation);
   // eslint-disable-next-line prettier/prettier
-  if (!name || !email || !password || !phoneno || !batchName || !subBatch || !admissionYear || !graduationYear || !dob || !userType)
+  if (!name || !email || !password || !phoneno || !batchName || !subBatch || !admissionYear || !graduationYear || !dob || !userType || !designation || !company || !gender)
     errors.push('Fields can not be empty');
   const exists = await db.collection('users').findOne({ email });
   if (exists) errors.push('Email already exists');
-  if (password.length < 6) errors.push('Password should be at least 6 chars long');
+  if (password !== confirmPassword) errors.push("Pasword don't match!");
+  if (password.length < 6) errors.push('Password should be at least 6 chars long.');
   if (errors.length) res.status(400).json({ icon: 'error', title: errors[0] });
   else {
     const hash = await bcrypt.hash(password, 10);
     await db
       .collection('users')
       // eslint-disable-next-line prettier/prettier
-      .insertOne({ name, email, phoneno, hash, batchName, subBatch, admissionYear, graduationYear, dob, userType, isAdmin:false,  isAdminVerified: false, isEmailVerified: false });
+      .insertOne({ name, email, phoneno, hash, batchName, subBatch, admissionYear, graduationYear, dob, userType, designation, company, instituteEmail, gender, isAdmin:false,  isAdminVerified: false, isEmailVerified: false, timestamp: new Date() });
     const { isAdminVerified } = await db.collection('users').findOne({ email });
     const user = await db.collection('users').findOne({ email });
     const userID = user._id;
