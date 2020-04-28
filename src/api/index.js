@@ -39,7 +39,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.get('/', (req, res) => res.send('welcome'));
 
   router.post('/signup', (req, res) => {
-    signup.handleSignup(req, res, db);
+    signup.handleSignup(req, res, db,client);
   });
   // verifying email route
   router.get('/verifyEmail/:token',async(req,res)=>{
@@ -62,7 +62,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     userDetails(req, res, db);
   });
   router.post('/uploadPost', userAuth, (req, res) => {
-    uploadPost(req, res, db);
+    uploadPost(req, res, db,client);
   });
   router.get('/admin', userAuth, verifyAdmin(db), async (req, res) => {
     showAdmin(req,res,db);
@@ -101,10 +101,10 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
 
   // eslint-disable-next-line prettier/prettier
   router.post('/posts/:postID/:commentID/replies', userAuth, (req,res,next) =>{
-      comments(req, res, db);
+      comments(req, res, db,client);
       next();
       // eslint-disable-next-line prettier/prettier
-  }, (req,res) => {replies(req,res,db);});
+  }, (req,res) => {replies(req,res,db)});
 
   // fetching comments of a post
   router.get('/posts/:postID/comment', userAuth, (req, res) => {
