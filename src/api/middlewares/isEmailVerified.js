@@ -3,7 +3,7 @@ module.exports= (db) =>{
     const { email } = req.body;
     const authCheck = await db.collection('users').findOne({ email });
 
-    const {isEmailVerified}= authCheck;
+    const {isEmailVerified}= authCheck||{};
     if(isEmailVerified)
     {
         next();

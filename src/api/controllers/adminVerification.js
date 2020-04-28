@@ -1,6 +1,32 @@
 const { ObjectID } = require('mongodb');
+const jwt = require('jsonwebtoken');
+
 module.exports= async(req,res,db,client)=>{
-        const session = client.startSession();
+  if(req.body.userType=='student')
+  {
+    const {token} = req.params;
+    jwt.verify(token,process.env.TOKEN_ACCESS_SECRET,async(er,decoded)=>{
+        if(er){
+            res.status(401).send({message: er.message})
+        }
+        else{
+            const userid=decoded.id;
+            await db
+               .collection('users')
+               .findOneAndUpdate({ _id: ObjectID(userid) }, { $set: { isAdminVerified: true } });
+               
+            try {
+              res.redirect('/api/login');
+          } catch (error) {
+              res.status(400).send(error)
+          } 
+        }     
+    })
+
+  }
+  else{
+
+    const session = client.startSession();
     
     const transactionOptions = {
       readPreference: 'primary',
@@ -19,7 +45,6 @@ module.exports= async(req,res,db,client)=>{
    
     if (transactionResults) {
       res.send('user succesfully verified by admin');
-      next();
   } else {
       console.log("The transaction was intentionally aborted.");
   }
@@ -29,4 +54,7 @@ module.exports= async(req,res,db,client)=>{
   } finally {
     await session.endSession();
   }
-    }
+
+  }
+
+}

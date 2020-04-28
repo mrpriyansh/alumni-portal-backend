@@ -1,12 +1,10 @@
 const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
-const jwt = require('jsonwebtoken');
+const sendMail=require('./sendMail');
 
 const handleSignup = async (req, res, db) => {
   // eslint-disable-next-line prettier/prettier
   const { name, email, phoneno, password, confirmPassword, batchName, subBatch, admissionYear, graduationYear, dob, userType, designation, company, instituteEmail, gender } = req.body;
   const errors = [];
-  console.log(designation);
   // eslint-disable-next-line prettier/prettier
   if (!name || !email || !password || !phoneno || !batchName || !subBatch || !admissionYear || !graduationYear || !dob || !userType || !designation || !company || !gender)
     errors.push('Fields can not be empty');
@@ -25,34 +23,21 @@ const handleSignup = async (req, res, db) => {
     const user = await db.collection('users').findOne({ email });
     const userID = user._id;
     if (!isAdminVerified) {
-      // if it is not a admin varified then verify a user by admin
+      //if it is not verified by admin then admin verification is done by sending email to instituteID
+      if(userType.toLowerCase()==="student")
+      {
+        sendMail(req,res,db,'institute');
+      }
+      // if it is not a admin verified then verify a user by admin
+      else{
       await db.collection('admins').updateOne({}, { $push: { usersToVerify: userID } });
+      }
     }
     // eslint-disable-next-line prettier/prettier
     res.status(200).json({ icon: 'success', title: 'Registered Successfully', text: 'Verify your email!' });
-
-    const transport = nodemailer.createTransport({
-      service: 'Gmail',
-      auth: {
-        user: process.env.SERVER_MAIL_ADDRESS,
-        pass: process.env.SERVER_PASSWORD,
-      },
-    });
-    const info = {
-      username: user.name,
-      id: user._id,
-      expiry: new Date(new Date().getTime() + 24 * 60 * 60 * 1000),
-    };
-    const token = jwt.sign(info, process.env.TOKEN_ACCESS_SECRET, { expiresIn: '1h' });
-    // console.log(token);
-    // console.log(mailOptions);
-    await transport.sendMail({
-      from: 'noreply <process.env.SERVER_MAIL_ADDRESS>',
-      to: user.email,
-      subject: 'Email verification',
-      text: `Visit this http://localhost:4000/verifyEmail/${token}`,
-      html: `<a href="http://localhost:4000/api/verifyEmail/${token}"><H2>Click on this link to verify your email!!</H2></a>`,
-    });
+   
+    sendMail(req,res,db,'');
+   
   }
 };
 
