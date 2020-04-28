@@ -15,6 +15,7 @@ const isAdminVerified=require('./middlewares/isAdminVerified.js');
 const isEmailVerified=require('./middlewares/isEmailVerified');
 const emailVerification=require('./controllers/emailVerification');
 const adminVerification=require('./controllers/adminVerification');
+const instituteEmailVerification=require('./controllers/instituteEmailVerification');
 const showAdmin=require('./controllers/showAdmin');
 const uploadPost = require('./controllers/uploadPost');
 const comments = require('./controllers/comments');
@@ -24,6 +25,7 @@ const userDetails = require('./controllers/userDetails');
 const uploadImage = require('./controllers/uploadImage');
 const fetchPosts = require('./controllers/fetchPosts');
 const profile = require('./controllers/profile');
+const sendMail=require('./controllers/sendMail');
 
 const url = config.host;
 
@@ -36,15 +38,30 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   console.log('Database connected successfully!');
   const db = client.db(config.dbName);
 
+
   router.get('/', (req, res) => res.send('welcome'));
 
   router.post('/signup', (req, res) => {
     signup.handleSignup(req, res, db,client);
   });
+  
   // verifying email route
   router.get('/verifyEmail/:token',async(req,res)=>{
    emailVerification(req,res,db);
   });
+
+  router.get('/resendEmail',async(req,res)=>{
+    sendMail(req,res,db,'');
+  });
+
+  router.get('/resendinstituteEmail',async(req,res)=>{
+    sendMail(req,res,db,'institute');
+  });
+
+  // verifying Institute email route
+  router.get('/verifyInstituteEmail/:token',async(req,res)=>{
+    instituteEmailVerification(req,res,db);             //Bcz we know this will only called for userType=student
+   });
 
   router.post('/uploadimage', userAuth, (req,res)=>{
     uploadImage(req, res, db);
