@@ -45,6 +45,7 @@ module.exports= async(req,res,db,client)=>{
    
     if (transactionResults) {
       res.send('user succesfully verified by admin');
+
   } else {
       console.log("The transaction was intentionally aborted.");
   }

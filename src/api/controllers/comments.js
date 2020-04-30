@@ -5,7 +5,6 @@ module.exports = async (req, res, db, client) => {
   const { email } = req.user;
   const user = await db.collection('users').findOne({ email });
   const userID = user._id;
-  let cmntID;
   
 
   const session = client.startSession();
@@ -46,7 +45,7 @@ module.exports = async (req, res, db, client) => {
 
     
     if (transactionResults) {
-      res.send('transaction was successful');
+      res.status(200).send('transaction was successful');
     } else {
       console.log('The transaction was intentionally aborted.');
     }
