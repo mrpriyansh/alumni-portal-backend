@@ -2,7 +2,6 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
 const { ObjectID } = require('mongodb');
-const jwt=require('jsonwebtoken');
 const config = require('../utils/config');
 
 const router = express.Router();
@@ -42,7 +41,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.get('/', (req, res) => res.send('welcome'));
 
   router.post('/signup', (req, res) => {
-    signup.handleSignup(req, res, db);
+    signup.handleSignup(req, res, db, client);
   });
   
   // verifying email route
@@ -60,13 +59,13 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
 
   // verifying Institute email route
   router.get('/verifyInstituteEmail/:token',async(req,res)=>{
-    instituteEmailVerification(req,res,db);             //Bcz we know this will only called for userType=student
+    instituteEmailVerification(req,res,db);             // Bcz we know this will only called for userType=student
    });
 
   router.post('/uploadimage', userAuth, (req,res)=>{
     uploadImage(req, res, db);
   })
-  router.get('/fetchposts', userAuth, (req,res)=>{
+  router.get('/fetchposts/:id', (req,res)=>{
     fetchPosts(req,res,db);
   })
   router.post('/login', isEmailVerified(db) ,isAdminVerified(db),(req, res) => {
@@ -79,7 +78,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     userDetails(req, res, db);
   });
   router.post('/uploadPost', userAuth, (req, res) => {
-    uploadPost(req, res, db);
+    uploadPost(req, res, db, client);
   });
   router.get('/admin', userAuth, verifyAdmin(db), async (req, res) => {
     showAdmin(req,res,db);
