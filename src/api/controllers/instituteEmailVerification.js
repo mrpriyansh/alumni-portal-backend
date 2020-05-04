@@ -5,7 +5,7 @@ module.exports = async (req, res, db) => {
   const { token } = req.params;
   jwt.verify(token, process.env.TOKEN_ACCESS_SECRET, async (er, decoded) => {
     if (er) {
-      res.status(401).send({ message: er.message });
+      res.status(401).send(`Token expired{ message: er.message }`);
     } else {
       const userid = decoded.id;
       await db
