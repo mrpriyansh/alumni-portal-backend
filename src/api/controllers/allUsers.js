@@ -1,9 +1,9 @@
 module.exports = async (req, res, db) => {
-  const { queryType, admissionYear } = req.query;
+  const { queryType, admissionYear, batchName } = req.query;
   if (queryType === 'members') {
     const users = await db
       .collection('users')
-      .find({ admissionYear, isAdminVerified: true, isEmailVerified: true })
+      .find({ admissionYear, batchName })
       .sort({ name: 1 })
       .toArray();
     res.status(200).json(users);
