@@ -2,13 +2,12 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
 const { ObjectID } = require('mongodb');
-const jwt=require('jsonwebtoken');
 const config = require('../utils/config');
 
 const router = express.Router();
 const signup = require('./controllers/signup');
 const login = require('./controllers/login');
-const indiUser = require('./controllers/user');
+const allUsers = require('./controllers/allUsers');
 const userAuth = require('./middlewares/user-auth');
 const verifyAdmin = require('./middlewares/verifyAdmin');
 const isAdminVerified=require('./middlewares/isAdminVerified.js');
@@ -26,6 +25,7 @@ const uploadImage = require('./controllers/uploadImage');
 const fetchPosts = require('./controllers/fetchPosts');
 const profile = require('./controllers/profile');
 const sendMail=require('./controllers/sendMail');
+const rejectUser = require('./controllers/rejectUser');
 
 const url = config.host;
 
@@ -42,7 +42,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.get('/', (req, res) => res.send('welcome'));
 
   router.post('/signup', (req, res) => {
-    signup.handleSignup(req, res, db,client);
+    signup.handleSignup(req, res, db, client);
   });
   
   // verifying email route
@@ -60,13 +60,13 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
 
   // verifying Institute email route
   router.get('/verifyInstituteEmail/:token',async(req,res)=>{
-    instituteEmailVerification(req,res,db);             //Bcz we know this will only called for userType=student
+    instituteEmailVerification(req,res,db);             // Bcz we know this will only called for userType=student
    });
 
   router.post('/uploadimage', userAuth, (req,res)=>{
     uploadImage(req, res, db);
   })
-  router.get('/fetchposts', userAuth, (req,res)=>{
+  router.get('/fetchposts/:id', (req,res)=>{
     fetchPosts(req,res,db);
   })
   router.post('/login', isEmailVerified(db) ,isAdminVerified(db),(req, res) => {
@@ -79,25 +79,23 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     userDetails(req, res, db);
   });
   router.post('/uploadPost', userAuth, (req, res) => {
-    uploadPost(req, res, db,client);
+    uploadPost(req, res, db, client);
   });
-  router.get('/admin', userAuth, verifyAdmin(db), async (req, res) => {
+  router.get('/admin', [userAuth, verifyAdmin(db)], async (req, res) => {
     showAdmin(req,res,db);
   });
   // verifying user by deleting userID from admins->userToVerify array and setting isAdminVerified Field true
-  router.get('/admin/confirm/:userID', userAuth, verifyAdmin(db), async (req, res) => {
+  router.get('/admin/confirm/:userId', [userAuth, verifyAdmin(db)] , async (req, res) => {
     adminVerification(req,res,db,client);
   });
   // deleting user by deleting userID from admins-> userToVerify array
-  router.get('/admin/delete/:userID', userAuth, verifyAdmin(db), async (req, res) => {
-    await db
-      .collection('admins')
-      .updateOne({}, { $pull: { usersToVerify: ObjectID(req.params.userID) } });
-    res.send('user not verfied by admin and successfully deleted from database');
+  router.get('/admin/delete/:userId', [userAuth, verifyAdmin(db)], async (req, res) => {
+     rejectUser(req,res,db);
   });
 
-  router.get('/user', userAuth, (req, res) => {
-    indiUser(req, res, db);
+  // members page and admin page
+  router.get('/users', [userAuth,verifyAdmin(db)], (req, res) => {
+   allUsers(req, res, db);
   });
 
   router.get('/posts/:postID', userAuth, async (req, res) => {
@@ -112,7 +110,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     res.send(user);
   });
   // implementing comments
-  router.post('/posts/:postID/comments', userAuth, (req, res) => {
+  router.post('/posts/:postID/comment', userAuth, (req, res) => {
     comments(req, res, db, client);
   });
 
@@ -124,7 +122,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   }, (req,res) => {replies(req,res,db)});
 
   // fetching comments of a post
-  router.get('/posts/:postID/comment', userAuth, (req, res) => {
+  router.get('/posts/:postID/comments', userAuth, (req, res) => {
     fetchcomment(req, res, db);
   });
   //implementing likes and unlike on a post

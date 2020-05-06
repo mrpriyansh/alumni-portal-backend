@@ -9,7 +9,11 @@ module.exports = async (req, res, db) => {
     const uniqueID = v4();
     const fileName = `${user._id}/${uniqueID}${path.extname(myFile.originalname)}`;
     const imageUrl = await uploadImageUtility(myFile, fileName);
-    res.status(200).json({ message: 'Upload was successful', data: imageUrl });
+    res.status(200).json({
+      message: 'Upload was successful',
+      data: `${imageUrl}`,
+      type: `${path.extname(myFile.originalname)}`,
+    });
   } catch (error) {
     res.status(402).json('Cannot upload');
     // next(error);
