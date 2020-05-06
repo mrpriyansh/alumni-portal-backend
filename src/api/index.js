@@ -42,7 +42,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.get('/', (req, res) => res.send('welcome'));
 
   router.post('/signup', (req, res) => {
-    signup.handleSignup(req, res, db, client);
+    signup.handleSignup(req, res, db);
   });
   
   // verifying email route
@@ -122,10 +122,10 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   }, (req,res) => {replies(req,res,db)});
 
   // fetching comments of a post
-  router.get('/posts/:postID/comments', userAuth, (req, res) => {
+  router.get('/posts/:postId/comments', userAuth, (req, res) => {
     fetchcomment(req, res, db);
   });
-  //implementing likes and unlike on a post
+  // implementing likes and unlike on a post
  router.post('/:postID/like',userAuth , async(req,res) =>{
   const user = await db.collection('users').findOne({ email:req.user.email });
   await db.collection('posts').findOneAndUpdate({ _id: ObjectID(req.params.postID)},{$push:{likes:user._id}});

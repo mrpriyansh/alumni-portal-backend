@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const sendMail = require('./sendMail');
 
-const handleSignup = async (req, res, db,client) => {
+const handleSignup = async (req, res, db) => {
   // eslint-disable-next-line prettier/prettier
   const { name, email, phoneno, password, confirmPassword, batchName, subBatch, admissionYear, graduationYear, dob, userType, designation, company, instituteEmail, gender } = req.body;
   const errors = [];
@@ -50,7 +50,6 @@ const handleSignup = async (req, res, db,client) => {
       console.log(`The transaction was aborted due to an unexpected error: ${err}`);
       res.status(500).json({ icon: 'error', title: 'Server Error! Please try again!' });
     }
-
   }
 };
 
