@@ -110,7 +110,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     res.send(user);
   });
   // implementing comments
-  router.post('/posts/:postID/comments', userAuth, (req, res) => {
+  router.post('/posts/:postID/comment', userAuth, (req, res) => {
     comments(req, res, db, client);
   });
 
@@ -122,7 +122,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   }, (req,res) => {replies(req,res,db);});
 
   // fetching comments of a post
-  router.get('/posts/:postID/comment', userAuth, (req, res) => {
+  router.get('/posts/:postID/comments', userAuth, (req, res) => {
     fetchcomment(req, res, db);
   });
 });
