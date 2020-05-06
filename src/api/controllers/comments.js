@@ -4,6 +4,7 @@ module.exports = async (req, res, db, client) => {
   const { email } = req.user;
   const user = await db.collection('users').findOne({ email });
   const userID = user._id;
+
   const session = client.startSession();
   const transactionOptions = {
     readPreference: 'primary',
