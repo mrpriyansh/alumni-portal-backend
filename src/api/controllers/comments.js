@@ -10,7 +10,6 @@ module.exports = async (req, res, db, client) => {
     readConcern: { level: 'local' },
     writeConcern: { w: 'majority' },
   };
-
   try {
     const transactionResults = await session.withTransaction(async () => {
       // inserting comment in comment collection

@@ -122,7 +122,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   }, (req,res) => {replies(req,res,db);});
 
   // fetching comments of a post
-  router.get('/posts/:postID/comments', userAuth, (req, res) => {
+  router.get('/posts/:postId/comments', userAuth, (req, res) => {
     fetchcomment(req, res, db);
   });
 });
