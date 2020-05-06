@@ -116,15 +116,33 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
 
   // eslint-disable-next-line prettier/prettier
   router.post('/posts/:postID/:commentID/replies', userAuth, (req,res,next) =>{
-      comments(req, res, db);
+      comments(req, res, db,client);
       next();
       // eslint-disable-next-line prettier/prettier
-  }, (req,res) => {replies(req,res,db);});
+  }, (req,res) => {replies(req,res,db)});
 
   // fetching comments of a post
   router.get('/posts/:postId/comments', userAuth, (req, res) => {
     fetchcomment(req, res, db);
   });
+  //implementing likes and unlike on a post
+ router.post('/:postID/like',userAuth , async(req,res) =>{
+  const user = await db.collection('users').findOne({ email:req.user.email });
+  await db.collection('posts').findOneAndUpdate({ _id: ObjectID(req.params.postID)},{$push:{likes:user._id}});
+  res.json('post liked');
+ });
+ router.post('/:postID/unlike',userAuth , async(req,res) =>{
+  const user = await db.collection('users').findOne({ email:req.user.email });
+  await db.collection('posts').findOneAndUpdate({ _id: ObjectID(req.params.postID)},{$pull:{likes:user._id}});
+  res.json('post unliked');
+ });
+
+ router.get('/:postID/like',userAuth , async(req,res) =>{
+   const post=await db.collection('posts').findOne({ _id: ObjectID(req.params.postID)});
+   const likes=post.likes.length;
+   res.status(200).json({likes});
+ });
+
 });
 
 module.exports = router;
