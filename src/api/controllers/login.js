@@ -7,7 +7,7 @@ const handleLogin = async (req, res, db) => {
   if (!email || !password) {
     res.status(400).json({ response: 'Fields cannot be empty' });
   } else {
-    const exists = await db.collection('users').findOne({ email });
+    const exists = await db.collection('users').findOne({ email: email.toLowerCase() });
 
     if (!exists) res.status(401).json({ response: 'Email does not exist' });
     else {
