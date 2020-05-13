@@ -3,10 +3,10 @@ const sendMail = require('./sendMail');
 
 const handleSignup = async (req, res, db) => {
   // eslint-disable-next-line prettier/prettier
-  const { name, email, phoneno, password, confirmPassword, batchName, subBatch, admissionYear, graduationYear, dob, userType, designation, company, instituteEmail, gender } = req.body;
+  const { name, email, phonenoCode, phoneno, password, confirmPassword, batchName, subBatch, admissionYear, graduationYear, dob, userType, designation, company, instituteEmail, gender } = req.body;
   const errors = [];
   // eslint-disable-next-line prettier/prettier
-  if (!name || !email || !password || !phoneno || !batchName || !subBatch || !admissionYear || !graduationYear || !dob || !userType || !designation || !company || !gender)
+  if (!name || !email || !password || !phonenoCode || !phoneno || !batchName || !subBatch || !admissionYear || !graduationYear || !dob || !userType || !designation || !company || !gender)
     errors.push('Fields can not be empty');
   const exists = await db.collection('users').findOne({ email });
   if (userType === 'student') {
@@ -23,6 +23,7 @@ const handleSignup = async (req, res, db) => {
       await db.collection('users').insertOne({
         name,
         email,
+        phonenoCode,
         phoneno,
         hash,
         batchName,
@@ -35,6 +36,10 @@ const handleSignup = async (req, res, db) => {
         company,
         instituteEmail,
         gender,
+        location: 'Not Updated Yet!',
+        about: 'Not Updated Yet!',
+        workExperience: [],
+        links: [],
         isAdmin: false,
         isAdminVerified: false,
         isEmailVerified: false,
@@ -42,9 +47,14 @@ const handleSignup = async (req, res, db) => {
       });
 
       sendMail(req, res, db, '');
-      if (userType === 'student') sendMail(req, res, db, 'institute');
-      // eslint-disable-next-line prettier/prettier
-        res.status(200).json({ icon: 'success', title: 'Registered Successfully', text: 'Verify your email!' });
+      if (userType === 'student') {
+        sendMail(req, res, db, 'institute');
+        // eslint-disable-next-line prettier/prettier
+        res.status(200).json({ icon: 'success', title: 'Please verify yourself using institute Email-Id!' });
+      } else {
+        // eslint-disable-next-line prettier/prettier
+        res.status(200).json({ icon: 'success', title: 'We will notify you when the account gets approved by the admin in 2-3 working days!' });
+      }
     } catch (err) {
       // eslint-disable-next-line no-console
       console.log(`The transaction was aborted due to an unexpected error: ${err}`);

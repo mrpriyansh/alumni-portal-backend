@@ -1,7 +1,7 @@
 const { ObjectId } = require('mongodb');
 
 module.exports = async (req, res, db) => {
-  const data = { hash: 0, isAdminVerified: 0, isEmailVerified: 0, isAdmin: 0, dob: 0, userType: 0 };
+  const data = { hash: 0, isAdminVerified: 0, isEmailVerified: 0, isAdmin: 0, userType: 0 };
   try {
     const { profileId } = req.params;
     // eslint-disable-next-line prettier/prettier
