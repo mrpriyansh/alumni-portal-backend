@@ -1,0 +1,28 @@
+steps:
+#made a key folder
+- name: ubuntu
+  entrypoint: 'bash'
+  args: ['-c', 'mkdir keys']
+#copied gcs key
+- name: gcr.io/cloud-builders/gcloud
+  entrypoint: 'bash'
+  args: [ '-c', 'gcloud secrets versions access latest --secret=gcs_key > ./keys/gcskeys.json' ]
+#copied jwt tokens
+- name: gcr.io/cloud-builders/gcloud
+  entrypoint: 'bash'
+  args: [ '-c', 'gcloud secrets versions access latest --secret=jwt_public > ./keys/ecd.pub.pem' ]
+- name: gcr.io/cloud-builders/gcloud
+  entrypoint: 'bash'
+  args: [ '-c', 'gcloud secrets versions access latest --secret=jwt_private > ./keys/ecd.pem' ]
+#create .env
+- name: node:10.15.1
+  entrypoint: npm
+  args: ["run", "create-env"]
+  env:
+    - 'DB_HOST=${_DB_CONNECTION_STRING}'
+    - 'TOKEN_ACCESS_SECRET=${_TOKEN_ACCESS_SECRET}'
+    - 'SERVER_MAIL_ADDRESS=${_SERVER_MAIL_ADDRESS}'
+    - 'SERVER_PASSWORD=${_SERVER_PASSWORD}'
+- name: "gcr.io/cloud-builders/gcloud"
+  args: ["app", "deploy"]
+timeout: "600s"
