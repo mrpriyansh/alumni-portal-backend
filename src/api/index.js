@@ -26,10 +26,10 @@ const fetchPosts = require('./controllers/fetchPosts');
 const profile = require('./controllers/profile');
 const sendMail=require('./controllers/sendMail');
 const rejectUser = require('./controllers/rejectUser');
+const changeProfile = require('./controllers/changeProfilePic');
+const linkedinAuth = require('./controllers/linkedinAuth');
 
 const url = config.host;
-
-
 MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   if (err) {
     throw err;
@@ -74,13 +74,21 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   });
   router.get('/profile/:profileId', (req,res)=>{
     profile(req, res, db);
-  })
+  });
+
+  router.get('/linkedinauth', (req, res) => {
+    linkedinAuth(req, res);
+  });
   router.get('/userdetails', userAuth, (req, res) => {
     userDetails(req, res, db);
   });
   router.post('/uploadPost', userAuth, (req, res) => {
     uploadPost(req, res, db, client);
   });
+  router.post('/changeprofilepic', userAuth, (req, res)=>{
+    console.log(req.body);
+    changeProfile(req, res, db);
+  })
   router.get('/admin', [userAuth, verifyAdmin(db)], async (req, res) => {
     showAdmin(req,res,db);
   });
