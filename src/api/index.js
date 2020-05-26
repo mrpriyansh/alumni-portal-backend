@@ -34,6 +34,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   if (err) {
     throw err;
   }
+
   // eslint-disable-next-line no-console
   console.log('Database connected successfully!');
   const db = client.db(config.dbName);
