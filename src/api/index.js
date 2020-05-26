@@ -87,7 +87,6 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     uploadPost(req, res, db, client);
   });
   router.post('/changeprofilepic', userAuth, (req, res)=>{
-    console.log(req.body);
     changeProfile(req, res, db);
   })
   router.get('/admin', [userAuth, verifyAdmin(db)], async (req, res) => {

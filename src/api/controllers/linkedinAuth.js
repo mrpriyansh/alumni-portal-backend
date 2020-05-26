@@ -2,7 +2,6 @@ const request = require('superagent');
 const { linkedinClientId, linkedinSecretKey, apiUrl } = require('../../utils/config');
 
 const getAccessToken = code => {
-  console.log(linkedinClientId, linkedinSecretKey);
   const r1 = request
     .post('https://www.linkedin.com/oauth/v2/accessToken')
     .send('grant_type=authorization_code')
@@ -30,7 +29,6 @@ const linkedinAuth = (req, res) => {
   getAccessToken(req.query.code)
     .then(response => {
       getProfileDetails(response.body.access_token).then(data => {
-        console.log(data.body);
         res.render('linkedinauth', { profile: data.body });
       });
     })
