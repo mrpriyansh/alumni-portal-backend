@@ -8,9 +8,14 @@ const gcsserviceKey = path.join(__dirname, '../../keys/gcskeys.json');
 const privateKey = fs.readFileSync('keys/ecd.pem');
 const publicKey = fs.readFileSync('keys/ecd.pub.pem');
 
-const { PORT, DB_HOST, DB_NAME } = process.env;
+const { PORT, DB_HOST, DB_NAME, linkedinClientId, linkedinClientSecret } = process.env;
 
 const { Storage } = Cloud;
+
+const apiUrl =
+  process.env.NODE_ENV === 'production'
+    ? 'https://linkedin-oauth-api-dot-tutorial-262713.el.r.appspot.com'
+    : 'http://localhost:4000';
 
 const config = {
   port: PORT,
@@ -24,7 +29,9 @@ const config = {
     keyFilename: gcsserviceKey,
     projectid: 'tutorial-262713',
   }),
-  // gcsConfig:
+  apiUrl,
+  linkedinClientId,
+  linkedinSecretKey: linkedinClientSecret,
 };
 
 module.exports = config;

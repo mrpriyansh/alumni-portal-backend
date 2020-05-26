@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const multer = require('multer');
+const path = require('path');
 const config = require('./utils/config');
 
 const app = express();
@@ -12,6 +13,10 @@ const multerMid = multer({
     fileSize: 20 * 1024 * 1024,
   },
 });
+
+// for ejs files
+app.set('views', path.join(__dirname, './views'));
+app.set('view engine', 'ejs');
 
 app.use(cors());
 app.use(bodyParser.json());
