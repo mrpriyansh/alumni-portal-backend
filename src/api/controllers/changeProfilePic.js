@@ -1,7 +1,6 @@
 const changeProfilePic = async (req, res, db) => {
   try {
     const { url } = req.body;
-    console.log(req.body);
     await db
       .collection('users')
       .findOneAndUpdate({ email: req.user.email }, { $set: { profilePicUrl: url } });

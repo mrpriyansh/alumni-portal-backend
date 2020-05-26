@@ -36,6 +36,8 @@ const handleSignup = async (req, res, db) => {
         company,
         instituteEmail,
         gender,
+        profilePicUrl:
+          'https://storage.cloud.google.com/alumni-portal/assets/default_profile_pic.jpg?folder&organizationId',
         location: 'Not Updated Yet!',
         about: 'Not Updated Yet!',
         workExperience: [],
