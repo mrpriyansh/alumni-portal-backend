@@ -22,6 +22,8 @@ steps:
     - 'DB_HOST=${_DB_CONNECTION_STRING}'
     - 'TOKEN_ACCESS_SECRET=${_TOKEN_ACCESS_SECRET}'
     - 'SENDGRID_API_KEY=${_SENDGRID_API_KEY}'
+    - 'linkedinClientId=${_LINKEDIN_CLIENT_ID}'
+    - 'linkedinSecretKey=${_LINKEDIN_SECRET_KEY}'
 - name: "gcr.io/cloud-builders/gcloud"
   args: ["app", "deploy"]
 timeout: "600s"

@@ -8,7 +8,14 @@ const gcsserviceKey = path.join(__dirname, '../../keys/gcskeys.json');
 const privateKey = fs.readFileSync('keys/ecd.pem');
 const publicKey = fs.readFileSync('keys/ecd.pub.pem');
 
-const { PORT, DB_HOST, DB_NAME, linkedinClientId, linkedinClientSecret } = process.env;
+const {
+  PORT,
+  DB_HOST,
+  DB_NAME,
+  linkedinClientId,
+  linkedinSecretKey,
+  SENDGRID_API_KEY,
+} = process.env;
 
 const { Storage } = Cloud;
 
@@ -31,7 +38,8 @@ const config = {
   }),
   apiUrl,
   linkedinClientId,
-  linkedinSecretKey: linkedinClientSecret,
+  linkedinSecretKey,
+  SENDGRID_API_KEY,
 };
 
 module.exports = config;
