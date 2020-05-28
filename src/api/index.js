@@ -26,7 +26,7 @@ const fetchPosts = require('./controllers/fetchPosts');
 const profile = require('./controllers/profile');
 const sendMail=require('./controllers/sendMail');
 const rejectUser = require('./controllers/rejectUser');
-const changeProfile = require('./controllers/changeProfilePic');
+const updateProfile = require('./controllers/updateProfile');
 const linkedinAuth = require('./controllers/linkedinAuth');
 
 const url = config.host;
@@ -86,8 +86,8 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.post('/uploadPost', userAuth, (req, res) => {
     uploadPost(req, res, db, client);
   });
-  router.post('/changeprofilepic', userAuth, (req, res)=>{
-    changeProfile(req, res, db);
+  router.put('/updateprofile', userAuth, (req, res)=>{
+    updateProfile(req, res, db);
   })
   router.get('/admin', [userAuth, verifyAdmin(db)], async (req, res) => {
     showAdmin(req,res,db);
