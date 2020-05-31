@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 module.exports = async (req, res, db, client) => {
   const { text, type, url, fileUrls } = req.body;
   if (text.length === 0) res.status(400).json({ icon: 'error', title: `Post can't be empty!` });
@@ -13,18 +14,9 @@ module.exports = async (req, res, db, client) => {
 
     const transactionResults = await session.withTransaction(async () => {
       const user = await usersCollection.findOne({ email: req.user.email }, { session });
-      const ID = user._id;
-      const userName = user.name;
-      const { designation, company } = user;
-      const POST = await postCollection.insertOne(
-        { ID, userName, designation, company, text, type, url, fileUrls, timestamp: Date() },
-        { session }
-      );
-
-      const postID = POST.insertedId;
-      await usersCollection.updateOne(
-        { email: req.user.email },
-        { $push: { Posts: postID } },
+      const userId = user._id;
+      await postCollection.insertOne(
+        { userId, text, type, url, fileUrls, timestamp: Date() },
         { session }
       );
     }, transactionOptions);

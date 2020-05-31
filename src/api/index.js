@@ -67,7 +67,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.post('/uploadimage', userAuth, (req,res)=>{
     uploadImage(req, res, db);
   })
-  router.get('/fetchposts/:id', (req,res)=>{
+  router.get('/fetchposts', (req,res)=>{
     fetchPosts(req,res,db);
   })
   router.post('/login', isEmailVerified(db) ,isAdminVerified(db),(req, res) => {
