@@ -93,11 +93,11 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     showAdmin(req,res,db);
   });
   // verifying user by deleting userID from admins->userToVerify array and setting isAdminVerified Field true
-  router.get('/admin/confirm/:userId', [userAuth, verifyAdmin(db)] , async (req, res) => {
+  router.put('/admin/confirm', [userAuth, verifyAdmin(db)] , async (req, res) => {
     adminVerification(req,res,db,client);
   });
   // deleting user by deleting userID from admins-> userToVerify array
-  router.get('/admin/delete/:userId', [userAuth, verifyAdmin(db)], async (req, res) => {
+  router.put('/admin/delete', [userAuth, verifyAdmin(db)], async (req, res) => {
      rejectUser(req,res,db);
   });
 
