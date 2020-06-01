@@ -28,6 +28,7 @@ const sendMail=require('./controllers/sendMail');
 const rejectUser = require('./controllers/rejectUser');
 const updateProfile = require('./controllers/updateProfile');
 const linkedinAuth = require('./controllers/linkedinAuth');
+const latestUsers = require('./controllers/latestUsers');
 
 const url = config.host;
 MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
@@ -45,7 +46,9 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.post('/signup', (req, res) => {
     signup.handleSignup(req, res, db);
   });
-  
+  router.get('/latestusers', userAuth, (req,res)=>{
+    latestUsers(req, res, db);
+  })  
   // verifying email route
   router.get('/verifyEmail/:token',async(req,res)=>{
    emailVerification(req,res,db);
