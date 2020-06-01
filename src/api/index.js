@@ -28,6 +28,7 @@ const sendMail=require('./controllers/sendMail');
 const rejectUser = require('./controllers/rejectUser');
 const updateProfile = require('./controllers/updateProfile');
 const linkedinAuth = require('./controllers/linkedinAuth');
+const latestUsers = require('./controllers/latestUsers');
 
 const url = config.host;
 MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
@@ -45,7 +46,9 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.post('/signup', (req, res) => {
     signup.handleSignup(req, res, db);
   });
-  
+  router.get('/latestusers', userAuth, (req,res)=>{
+    latestUsers(req, res, db);
+  })  
   // verifying email route
   router.get('/verifyEmail/:token',async(req,res)=>{
    emailVerification(req,res,db);
@@ -93,11 +96,11 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     showAdmin(req,res,db);
   });
   // verifying user by deleting userID from admins->userToVerify array and setting isAdminVerified Field true
-  router.get('/admin/confirm/:userId', [userAuth, verifyAdmin(db)] , async (req, res) => {
+  router.put('/admin/confirm', [userAuth, verifyAdmin(db)] , async (req, res) => {
     adminVerification(req,res,db,client);
   });
   // deleting user by deleting userID from admins-> userToVerify array
-  router.get('/admin/delete/:userId', [userAuth, verifyAdmin(db)], async (req, res) => {
+  router.put('/admin/delete', [userAuth, verifyAdmin(db)], async (req, res) => {
      rejectUser(req,res,db);
   });
 
