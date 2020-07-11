@@ -1,16 +1,20 @@
+const { ErrorHandler } = require('../../utils/handleError');
 
 module.exports = db => {
   return async (req, res, next) => {
-    const { email } = req.body;
-    const authCheck = await db.collection('users').findOne({ email });
-
-    const { isAdminVerified } = authCheck || {};
-    if (isAdminVerified) {
-      next();
-    } else {
-      res
-        .status(401)
-        .json({ response: 'Verify yourself using Institute Id or Wait for admin Approval!' });
+    try {
+      const { email } = req.body;
+      const authCheck = await db.collection('users').findOne({ email: email.toLowerCase() });
+      if (authCheck.isAdminVerified) {
+        next();
+      } else {
+        throw new ErrorHandler(
+          403,
+          'Verify Yourself Using Institute Id or Wait For Admin Approval!'
+        );
+      }
+    } catch (err) {
+      next(err);
     }
   };
 };

@@ -29,22 +29,31 @@ const rejectUser = require('./controllers/rejectUser');
 const updateProfile = require('./controllers/updateProfile');
 const linkedinAuth = require('./controllers/linkedinAuth');
 const latestUsers = require('./controllers/latestUsers');
+const writeToFile = require('../utils/writeToFile');
 
 const url = config.host;
 MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   if (err) {
-    throw err;
-  }
+    writeToFile('Cannot Connect To DataBase');
+    router.all('*',(req,res)=> res.status(500).json('Server Error') );
+    console.log('Error In connection with Database');
+  } else{
 
   // eslint-disable-next-line no-console
   console.log('Database connected successfully!');
   const db = client.db(config.dbName);
 
+  // routes
+  router.get('/', (req, res) => {
+    res.status(200).send( 'API Service Is Running!')
+  });
 
-  router.get('/', (req, res) => res.send('welcome'));
-
-  router.post('/signup', (req, res) => {
-    signup.handleSignup(req, res, db);
+  router.post('/signup', (req, res, next) => {
+    signup.handleSignup(req, res, db, next)
+  });
+  
+  router.post('/login', isEmailVerified(db) ,isAdminVerified(db),(req, res, next) => {
+    login(req, res, db, next);
   });
   router.get('/latestusers', userAuth, (req,res)=>{
     latestUsers(req, res, db);
@@ -73,9 +82,6 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.get('/fetchposts', (req,res)=>{
     fetchPosts(req,res,db);
   })
-  router.post('/login', isEmailVerified(db) ,isAdminVerified(db),(req, res) => {
-    login(req, res, db);
-  });
   router.get('/profile/:profileId', (req,res)=>{
     profile(req, res, db);
   });
@@ -153,7 +159,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
    const likes=post.likes.length;
    res.status(200).json({likes});
  });
-
+  }
 });
 
 module.exports = router;
