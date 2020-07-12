@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../../utils/config');
+const { ErrorHandler } = require('../../utils/handleError');
 
 module.exports = (req, res, next) => {
   // eslint-disable-next-line no-useless-catch
@@ -10,6 +11,6 @@ module.exports = (req, res, next) => {
     next();
   } catch (err) {
     // throw err;
-    console.log(err);
+    throw new ErrorHandler(498, 'Invalid Token!');
   }
 };

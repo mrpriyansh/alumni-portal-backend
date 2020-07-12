@@ -1,4 +1,4 @@
-module.exports = async (req, res, db) => {
+module.exports = async (req, res, db, next) => {
   try {
     const latestUsers = await db
       .collection('users')
@@ -9,6 +9,6 @@ module.exports = async (req, res, db) => {
       .toArray();
     res.status(200).json(latestUsers);
   } catch (err) {
-    console.log(err);
+    next(err);
   }
 };
