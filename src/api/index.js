@@ -55,8 +55,8 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
   router.post('/login', isEmailVerified(db) ,isAdminVerified(db),(req, res, next) => {
     login(req, res, db, next);
   });
-  router.get('/latestusers', userAuth, (req,res)=>{
-    latestUsers(req, res, db);
+  router.get('/latestusers', userAuth, (req, res, next)=>{
+    latestUsers(req, res, db, next);
   })  
   // verifying email route
   router.get('/verifyEmail/:token',async(req,res)=>{
